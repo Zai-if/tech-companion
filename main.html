@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <style>
+        /* Phone Frame - Consistent with your design */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: white;
+            border-radius: 40px;
+            border: 12px solid #333;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Animation Container */
+        .welcome-screen {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            position: relative;
+        }
+
+        /* Logo Animation */
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: url('logo.jpg') no-repeat center center;  
+                      background-size: contain;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        /* App Name Animation */
+        .app-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out 1s forwards;
+        }
+
+        /* Quote Animation */
+        .quote {
+            text-align: center;
+            max-width: 80%;
+            margin-top: 40px;
+            font-style: italic;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 1s ease-out 1.5s forwards;
+        }
+
+        .author {
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 2s forwards;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Transition Effect */
+        .transition-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+        }
+
+        /* Dark Mode */
+        body.dark .phone {
+            border-color: #666;
+        }
+
+        body.dark .welcome-screen {
+            background: linear-gradient(135deg, #2a3b9f, #1a2b8f);
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="welcome-screen" id="welcomeScreen">
+            <!-- Replace with your logo (or use emoji as placeholder) -->
+            <div class="logo"> </div>
+            <div class="app-name">Tech Companion</div>
+            <div class="quote" id="quoteText">"The best way to predict the future is to create it."</div>
+            <div class="author" id="quoteAuthor">- Abraham Lincoln</div>
+        </div>
+    </div>
+
+    <script>
+        // Random Quotes Database
+        const quotes = [
+            {
+                text: "The greatest glory in living lies not in never falling, but in rising every time we fall.",
+                author: "- Nelson Mandela"
+            },
+            {
+                text: "The way to get started is to quit talking and begin doing.",
+                author: "- Walt Disney"
+            },
+            {
+                text: "Your time is limited, so don't waste it living someone else's life.",
+                author: "- Steve Jobs"
+            },
+            {
+                text: "The future belongs to those who believe in the beauty of their dreams.",
+                author: "- Eleanor Roosevelt"
+            },
+            {
+                text: "Whoever is happy will make others happy too.",
+                author: "- Anne Frank"
+            }
+        ];
+
+        // Display random quote
+        function showRandomQuote() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quoteText').textContent = randomQuote.text;
+            document.getElementById('quoteAuthor').textContent = randomQuote.author;
+        }
+
+        // Initial animation
+        showRandomQuote();
+
+        // Transition to index.html after 3 seconds
+        setTimeout(() => {
+            document.getElementById('welcomeScreen').classList.add('transition-out');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500); // Match this with fadeOut animation duration
+        }, 3000);
+
+        // Dark mode check
+        if(localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark');
+        }
+    </script>
+</body>
+</html>
