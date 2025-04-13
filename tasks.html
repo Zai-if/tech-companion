@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <style>
+        /* Phone Frame - Consistent with other pages */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: white;
+            border-radius: 40px;
+            border: 12px solid #333;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .app-content {
+            padding: 20px;
+            height: calc(100% - 40px);
+            overflow-y: auto;
+        }
+        
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        /* Task Input Section */
+        .task-input-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f8f8;
+            border-radius: 10px;
+        }
+        
+        .task-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .datetime-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .datetime-inputs input {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .microphone, .save-btn {
+            padding: 12px 20px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .microphone {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .save-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        /* Task List */
+        .task-list {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .task-checkbox {
+            transform: scale(1.5);
+            margin-right: 15px;
+        }
+        
+        .task-details {
+            flex: 1;
+            font-size: 18px;
+        }
+        
+        .task-date {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .delete-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        .no-tasks {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 18px;
+        }
+        
+        /* Dark Mode */
+        body.dark .phone {
+            border-color: #666;
+            background: #121212;
+        }
+        
+        body.dark .app-content {
+            background: #121212;
+            color: white;
+        }
+        
+        body.dark .task-input-container {
+            background: #333;
+        }
+        
+        body.dark .task-input,
+        body.dark .datetime-inputs input {
+            background: #222;
+            color: white;
+            border-color: #444;
+        }
+        
+        body.dark .task-item {
+            background: #333;
+            color: white;
+        }
+        
+        body.dark .task-date {
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <button class="back-button" onclick="window.location.href='index.html'">←</button>
+        <div class="app-content">
+            <div class="task-input-container">
+                <input type="text" class="task-input" placeholder="Enter task..." id="taskName" inputmode="text">
+                
+                <div class="datetime-inputs">
+                    <input type="date" id="taskDate">
+                    <input type="time" id="taskTime">
+                </div>
+                
+                <div class="controls">
+                    <button class="microphone" id="voiceButton">🎤 Voice Input</button>
+                    <button class="save-btn" onclick="saveTask()">Save Task</button>
+                </div>
+            </div>
+            
+            <div class="task-list" id="taskList">
+                <!-- Tasks will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with today's date
+        document.getElementById('taskDate').valueAsDate = new Date();
+        
+        // Voice Recognition
+        document.getElementById('voiceButton').addEventListener('click', function() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    document.getElementById('taskName').placeholder = "Listening...";
+                    voiceButton.innerHTML = '🎤<div class="pulse"></div>';
+                };
+                
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('taskName').value = transcript;
+                };
+                
+                recognition.onerror = () => {
+                    document.getElementById('taskName').placeholder = "Enter task...";
+                    voiceButton.innerHTML = '🎤';
+                };
+                
+                recognition.onend = () => {
+                    document.getElementById('taskName').placeholder = "Enter task...";
+                    voiceButton.innerHTML = '🎤';
+                };
+                
+                recognition.start();
+            } else {
+                alert("Voice search not supported in your browser. Try Chrome or Edge.");
+            }
+        });
+        
+        // Save Task
+        function saveTask() {
+            const taskName = document.getElementById('taskName').value;
+            const taskDate = document.getElementById('taskDate').value;
+            const taskTime = document.getElementById('taskTime').value;
+            
+            if (!taskName || !taskDate || !taskTime) {
+                alert("Please fill in all fields!");
+                return;
+            }
+            
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const newTask = {
+                id: Date.now(),
+                name: taskName,
+                date: taskDate,
+                time: taskTime,
+                completed: false
+            };
+            
+            tasks.push(newTask);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            
+            alert("Task saved successfully!"); // Added alert
+            loadTasks();
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskTime').value = '';
+        }
+        
+        // Load Tasks (Now shows ALL tasks, not just today's)
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const taskList = document.getElementById('taskList');
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<div class="no-tasks">No tasks saved yet</div>';
+                return;
+            }
+            
+            taskList.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.innerHTML = `
+                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask(${task.id})">
+                    <div class="task-details">
+                        <div>${task.name}</div>
+                        <div class="task-date">${formatDate(task.date)} at ${formatTime(task.time)}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteTask(${task.id})">Delete</button>
+                `;
+                
+                if (task.completed) {
+                    taskItem.style.opacity = '0.6';
+                    taskItem.querySelector('.task-details').style.textDecoration = 'line-through';
+                }
+                
+                taskList.appendChild(taskItem);
+            });
+        }
+        
+        // Helper function to format date (e.g., "Apr 13, 2025")
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        
+        // Helper function to format time (e.g., "3:30 PM")
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            return `${hour > 12 ? hour - 12 : hour}:${minutes} ${hour >= 12 ? 'PM' : 'AM'}`;
+        }
+        
+        // Toggle Task Completion
+        function toggleTask(taskId) {
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            const taskIndex = tasks.findIndex(task => task.id === taskId);
+            
+            if (taskIndex !== -1) {
+                tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                loadTasks();
+            }
+        }
+        
+        // Delete Task
+        function deleteTask(taskId) {
+            if (confirm("Are you sure you want to delete this task?")) {
+                const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+                const updatedTasks = tasks.filter(task => task.id !== taskId);
+                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+                loadTasks();
+            }
+        }
+        
+        // Initialize
+        loadTasks();
+        
+        // Dark mode check
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark');
+        }
+        
+        // Add pulse animation for microphone
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); }
+            }
+            .pulse {
+                position: absolute;
+                width: 10px;
+                height: 10px;
+                background: red;
+                border-radius: 50%;
+                animation: pulse 1s infinite;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Focus on input to trigger mobile keyboard
+        document.getElementById('taskName').focus();
+    </script>
+</body>
+</html>

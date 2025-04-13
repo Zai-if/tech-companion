@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts</title>
+    <style>
+        /* Phone Frame - Consistent with other pages */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: white;
+            border-radius: 40px;
+            border: 12px solid #333;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+        
+        .app-content {
+            padding: 20px;
+            height: calc(100% - 40px);
+            overflow-y: auto;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .add-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        /* Contacts List */
+        .contacts-list {
+            margin-top: 10px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        
+        .contact-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4a6bff;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .contact-details {
+            flex: 1;
+        }
+        
+        .contact-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .contact-number {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .contact-star {
+            font-size: 20px;
+            margin-left: 10px;
+        }
+        
+        /* Popup */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .popup {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 300px;
+        }
+        
+        .popup h2 {
+            margin-top: 0;
+        }
+        
+        .popup input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .star-options {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+        }
+        
+        .star-option {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .popup-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .popup-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .cancel-btn {
+            background: #f44336;
+            color: white;
+        }
+        
+        .save-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        /* Dark Mode */
+        body.dark .phone {
+            border-color: #666;
+            background: #121212;
+        }
+        
+        body.dark .app-content {
+            background: #121212;
+            color: white;
+        }
+        
+        body.dark .contact-item {
+            border-bottom-color: #333;
+        }
+        
+        body.dark .contact-item:hover {
+            background: #222;
+        }
+        
+        body.dark .contact-number {
+            color: #aaa;
+        }
+        
+        body.dark .popup {
+            background: #333;
+            color: white;
+        }
+        
+        body.dark .popup input {
+            background: #222;
+            color: white;
+            border-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <div class="app-content">
+            <div class="header">
+                <h1>Contacts</h1>
+                <button class="add-btn" onclick="showAddPopup()">+</button>
+            </div>
+            
+            <div class="contacts-list" id="contactsList">
+                <!-- Contacts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contact Popup -->
+    <div class="popup-overlay" id="addPopup">
+        <div class="popup">
+            <h2>Add Contact</h2>
+            <input type="text" id="contactNameInput" placeholder="Name">
+            <input type="tel" id="contactNumberInput" placeholder="Phone Number">
+            
+            <div class="star-options">
+                <span class="star-option" onclick="selectStar('red')">🔴</span>
+                <span class="star-option" onclick="selectStar('green')">🟢</span>
+                <span class="star-option" onclick="selectStar('blue')">🔵</span>
+            </div>
+            
+            <div class="popup-buttons">
+                <button class="cancel-btn" onclick="hideAddPopup()">Cancel</button>
+                <button class="save-btn" onclick="saveContact()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedStar = '';
+        
+        // Predefined emergency contacts
+        const predefinedContacts = [
+            { name: "Father", number: "123-456-7890", star: "red" },
+            { name: "Mother", number: "123-456-7891", star: "red" },
+            { name: "Daughter", number: "123-456-7892", star: "red" },
+            { name: "Sister", number: "123-456-7893", star: "red" },
+            { name: "Brother", number: "123-456-7894", star: "red" },
+            { name: "John (Colleague)", number: "123-456-7895", star: "green" },
+            { name: "Sarah (Friend)", number: "123-456-7896", star: "blue" }
+        ];
+        
+        // Load contacts from localStorage or use predefined
+        function loadContacts() {
+            let contacts = JSON.parse(localStorage.getItem('contacts')) || predefinedContacts;
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = '';
+            
+            if (contacts.length === 0) {
+                contactsList.innerHTML = '<p>No contacts found. Add some!</p>';
+                return;
+            }
+            
+            contacts.forEach(contact => {
+                const contactItem = document.createElement('div');
+                contactItem.className = 'contact-item';
+                contactItem.onclick = () => window.location.href = `call.html?contact=${encodeURIComponent(contact.name)}`;
+                
+                // Get initials for avatar
+                const initials = contact.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                
+                // Star emoji based on type
+                const starEmoji = contact.star === 'red' ? '🔴' : 
+                                 contact.star === 'green' ? '🟢' : '🔵';
+                
+                contactItem.innerHTML = `
+                    <div class="contact-avatar">${initials}</div>
+                    <div class="contact-details">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-number">${contact.number}</div>
+                    </div>
+                    <div class="contact-star">${starEmoji}</div>
+                `;
+                
+                contactsList.appendChild(contactItem);
+            });
+        }
+        
+        // Show/hide add popup
+        function showAddPopup() {
+            document.getElementById('addPopup').style.display = 'flex';
+            selectedStar = '';
+        }
+        
+        function hideAddPopup() {
+            document.getElementById('addPopup').style.display = 'none';
+        }
+        
+        // Select star type
+        function selectStar(type) {
+            selectedStar = type;
+            // Highlight selected star (optional)
+            document.querySelectorAll('.star-option').forEach(star => {
+                star.style.opacity = star.textContent.includes(type) ? '1' : '0.5';
+            });
+        }
+        
+        // Save new contact
+        function saveContact() {
+            const name = document.getElementById('contactNameInput').value;
+            const number = document.getElementById('contactNumberInput').value;
+            
+            if (!name || !number || !selectedStar) {
+                alert("Please fill all fields and select a star!");
+                return;
+            }
+            
+            const contacts = JSON.parse(localStorage.getItem('contacts')) || predefinedContacts;
+            contacts.push({ name, number, star: selectedStar });
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            
+            hideAddPopup();
+            loadContacts();
+            
+            // Clear inputs
+            document.getElementById('contactNameInput').value = '';
+            document.getElementById('contactNumberInput').value = '';
+        }
+        
+        // Initialize
+        loadContacts();
+        
+        // Dark mode check
+        if(localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark');
+        }
+    </script>
+</body>
+</html>

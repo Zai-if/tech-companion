@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Input</title>
+    <style>
+        /* Phone Frame - Same as index.html */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: white;
+            border-radius: 40px;
+            border: 12px solid #333;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .app-content {
+            padding: 20px;
+            height: calc(100% - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Message Input */
+        .message-box {
+            width: calc(100% - 30px);
+            height: 150px;
+            font-size: 18px;
+            padding: 15px;
+            margin: 40px 0 20px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            margin-top: auto;
+            gap: 10px;
+        }
+
+        .microphone, .record-btn, .next-btn {
+            padding: 12px 15px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+        }
+
+        .microphone {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .record-btn {
+            background: #ff9800;
+            color: white;
+            margin: 0 5px;
+        }
+
+        .next-btn {
+            background: #008CBA;
+            color: white;
+        }
+
+        /* Dark Mode */
+        body.dark .phone {
+            border-color: #666;
+            background: #121212;
+        }
+
+        body.dark .message-box {
+            background: #222;
+            color: white;
+            border-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <button class="back-button" onclick="window.location.href='index.html'">←</button>
+        <div class="app-content">
+            <textarea class="message-box" placeholder="Write your message here..."></textarea>
+            <div class="controls">
+                <button class="microphone">🎤 Voice</button>
+                <button class="record-btn">🎙️ Record</button>
+                <button class="next-btn" onclick="window.location.href='message_contacts.html'">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Voice Recognition
+        document.querySelector('.microphone').addEventListener('click', function() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = "en-US";
+            recognition.start();
+
+            recognition.onresult = function(event) {
+                const speechText = event.results[0][0].transcript;
+                document.querySelector(".message-box").value = speechText;
+            };
+
+            recognition.onerror = function() {
+                alert("Voice recognition error. Please try again!");
+            };
+        });
+
+        // Fake Voice Recording Alert
+        document.querySelector('.record-btn').addEventListener('click', function() {
+            alert("Voice recording started... (Simulation)");
+            setTimeout(() => alert("Recording saved!"), 3000);
+        });
+
+        // Dark mode check
+        if(localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark');
+        }
+    </script>
+</body>
+</html>

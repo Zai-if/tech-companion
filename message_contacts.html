@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Contact</title>
+    <style>
+        /* Phone Frame - Same as index.html */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .phone {
+            width: 375px;
+            height: 667px;
+            background: white;
+            border-radius: 40px;
+            border: 12px solid #333;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .app-content {
+            padding: 20px;
+            height: calc(100% - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .contacts-container {
+            width: 100%;
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .contact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .contact:hover {
+            transform: translateY(-2px);
+        }
+
+        .app-icon {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Dark Mode */
+        body.dark .phone {
+            border-color: #666;
+            background: #121212;
+        }
+
+        body.dark .contact {
+            background: #333;
+            color: white;
+        }
+
+        body.dark h2 {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <button class="back-button" onclick="window.location.href='message.html'">←</button>
+        <div class="app-content">
+            <h2>Select Contact</h2>
+            <div class="contacts-container">
+                <div class="contact" onclick="sendMessage('John Doe', 'WhatsApp')">
+                    <span>John Doe</span> <img src="whatsapp.png" alt="WhatsApp" class="app-icon">
+                </div>
+                <div class="contact" onclick="sendMessage('Alice Smith', 'Snapchat')">
+                    <span>Alice Smith</span> <img src="social.png" alt="Snapchat" class="app-icon">
+                </div>
+                <div class="contact" onclick="sendMessage('David Lee', 'SMS')">
+                    <span>David Lee</span> <img src="sms.png" alt="SMS" class="app-icon">
+                </div>
+                <div class="contact" onclick="sendMessage('Mother', 'SMS')">
+                    <span>Mother 🔴</span> <img src="sms.png" alt="SMS" class="app-icon">
+                </div>
+                <div class="contact" onclick="sendMessage('Father', 'WhatsApp')">
+                    <span>Father 🔴</span> <img src="whatsapp.png" alt="WhatsApp" class="app-icon">
+                </div>
+                <div class="contact" onclick="sendMessage('Sarah (Friend)', 'Snapchat')">
+                    <span>Sarah 🔵</span> <img src="social.png" alt="Snapchat" class="app-icon">
+                </div>
+                <div class="contact" onclick="sendMessage('John (Work)', 'WhatsApp')">
+                    <span>John 🟢</span> <img src="whatsapp.png" alt="WhatsApp" class="app-icon">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage(name, app) {
+            alert(`Message sent to ${name} via ${app} (Simulation)!`);
+            window.location.href = 'index.html';
+        }
+
+        // Dark mode check
+        if(localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark');
+        }
+    </script>
+</body>
+</html>
